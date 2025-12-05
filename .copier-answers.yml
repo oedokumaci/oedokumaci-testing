@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier.
+_commit: 0.2.0
+_src_path: /Users/oedokumaci/Projects/copier-uv
+author_email: oral.ersoy.dokumaci@gmail.com
+author_fullname: Oral Ersoy Dokumaci
+author_username: oedokumaci
+copyright_date: '2025'
+copyright_holder: Oral Ersoy Dokumaci
+copyright_holder_email: oral.ersoy.dokumaci@gmail.com
+copyright_license: ISC
+include_notebooks: true
+is_library: false
+project_description: Testing this great template
+project_name: Oedokumaci Testing
+python_package_command_line_name: oedokumaci-testing
+python_package_distribution_name: oedokumaci-testing
+python_package_import_name: oedokumaci_testing
+repository_name: oedokumaci-testing
+repository_namespace: oedokumaci
+repository_provider: github.com
+

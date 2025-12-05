@@ -1,0 +1,143 @@
+---
+title: Notebooks
+---
+
+# Notebooks
+
+This project uses [marimo](https://marimo.io/) for interactive notebooks — a **reactive Python notebook** that's Git-friendly and designed for reproducibility.
+
+## Quick Start
+
+```bash
+# Edit notebooks
+uv run marimo edit notebooks/starter.py    # Edit starter notebook
+uv run marimo edit notebooks/my.py         # Edit specific notebook
+
+# Run as interactive app
+uv run marimo run notebooks/starter.py     # Run starter notebook
+uv run marimo run notebooks/my.py          # Run specific notebook
+
+# Execute as script
+uv run python notebooks/starter.py
+
+# Tutorial
+uv run marimo tutorial intro               # Interactive tutorial
+```
+
+### Recommended Edit Flags
+
+- `--sandbox` — Track dependencies in notebook header for reproducibility
+- `--watch` — Auto-reload when imported modules change
+
+Example with recommended flags:
+
+```bash
+uv run marimo edit --sandbox --watch notebooks/my.py
+```
+
+## Why marimo?
+
+marimo is a reinvention of the Python notebook that solves common problems:
+
+| Feature | marimo | Jupyter |
+|---------|--------|---------|
+| File format | Pure Python (`.py`) | JSON (`.ipynb`) |
+| Version control | Git-friendly diffs | Hard to review |
+| Execution | Reactive, deterministic | Manual, can be out of order |
+| Hidden state | Impossible | Common source of bugs |
+| Deployment | Run as web apps | Requires additional tools |
+| SQL support | Native SQL cells | Requires extensions |
+
+### Reactive Execution
+
+Run a cell and marimo **automatically runs dependent cells**:
+
+```python
+# Cell 1
+x = 10
+
+# Cell 2 — re-runs automatically when x changes
+y = x * 2
+```
+
+No more manually re-running cells or debugging stale variables!
+
+## Starter Notebook
+
+The `notebooks/starter.py` provides:
+
+- Project-specific setup
+- Interactive UI examples (sliders, dropdowns, tables)
+- SQL and data visualization tips
+- Links to documentation
+
+## Key Features
+
+### Interactive UI Elements
+
+```python
+import marimo as mo
+
+slider = mo.ui.slider(0, 100, value=50)
+dropdown = mo.ui.dropdown(["Option A", "Option B"])
+table = mo.ui.table(dataframe)  # Search, filter, sort
+explorer = mo.ui.dataframe(df)  # Full data explorer
+```
+
+### Native SQL Support
+
+Query dataframes directly with SQL cells:
+
+```python
+result = mo.sql(f"SELECT * FROM {df} WHERE value > 10")
+```
+
+### AI-Assisted Coding
+
+With `marimo[recommended]`:
+
+- Generate cells with `Ctrl/Cmd + Shift + E`
+- AI chat panel for data questions
+- Zero-shot notebook generation
+
+### Package Management
+
+Use sandbox mode for reproducible notebooks:
+
+```bash
+uv run marimo edit --sandbox notebooks/analysis.py
+```
+
+Dependencies are tracked in the file header:
+
+```python
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["marimo[recommended]", "pandas", "plotly"]
+# ///
+```
+
+## Export Options
+
+```bash
+# Export to HTML report
+uv run marimo export html notebooks/analysis.py -o report.html
+
+# Export to Jupyter (if needed)
+uv run marimo export ipynb notebooks/analysis.py -o analysis.ipynb
+```
+
+## Resources
+
+- :material-book: [marimo Documentation](https://docs.marimo.io/)
+- :material-school: [Key Concepts Tutorial](https://docs.marimo.io/getting_started/key_concepts)
+- :material-play-circle: [YouTube Tutorials](https://www.youtube.com/@maraboroda)
+- :material-github: [GitHub Repository](https://github.com/marimo-team/marimo)
+- :material-chat: [Discord Community](https://discord.gg/JE7nhX6mD8)
+- :material-cloud: [molab Cloud Notebooks](https://marimo.io/)
+
+!!! tip "Run the Interactive Tutorial"
+    ```bash
+    uv run marimo tutorial intro
+    ```
+    This launches an interactive tutorial in your browser to learn marimo's key concepts.
