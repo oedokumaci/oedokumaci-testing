@@ -1,0 +1,216 @@
+# CLAUDE.md
+
+This file provides guidance for AI assistants working on this codebase.
+
+## Project Overview
+
+**Oedokumaci Testing** - Python package managed with [uv](https://github.com/astral-sh/uv).
+
+| Attribute | Value |
+|-----------|-------|
+| Package | `oedokumaci-testing` |
+| Import | `oedokumaci_testing` |
+| Python | 3.13 |
+
+## Quick Reference
+
+```bash
+uvx --from taskipy task setup    # Install dependencies
+uvx --from taskipy task run      # Run the application
+uvx --from taskipy task fix      # Auto-format + lint fix
+uvx --from taskipy task ci       # Run all CI checks (format, lint, typecheck, test)
+uvx --from taskipy task test     # Run tests
+uvx --from taskipy task docs     # Serve docs locally
+```
+
+## Standard Workflow
+
+1. **Explore** - Read relevant code first
+2. **Plan** - Ask clarifying questions for architectural changes
+3. **Test First** - Write failing test (TDD)
+4. **Code** - Minimal code to pass test
+5. **Refactor** - Clean up, keep tests green
+6. **Verify** - `uvx --from taskipy task fix && uvx --from taskipy task ci`
+
+**Ask before:** Adding dependencies, changing public API, modifying structure.
+
+## Clean Code (Uncle Bob)
+
+### SOLID Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **S**ingle Responsibility | One reason to change |
+| **O**pen/Closed | Open for extension, closed for modification |
+| **L**iskov Substitution | Subtypes substitutable for base types |
+| **I**nterface Segregation | Specific interfaces > general interfaces |
+| **D**ependency Inversion | Depend on abstractions |
+
+### Guidelines
+
+- **Functions**: Small (<20 lines), do one thing, few args (0-2), no side effects
+- **Classes**: Small, cohesive, encapsulated
+- **General**: DRY, YAGNI, meaningful names, Boy Scout Rule
+
+## TDD (Test-Driven Development)
+
+**Uncle Bob's Three Laws:**
+1. No production code without a failing test
+2. Write only enough test to fail
+3. Write only enough code to pass
+
+**Cycle:** Red -> Green -> Refactor -> Repeat
+
+**Test behavior, not implementation.** Tests verify *what* code does, not *how*.
+
+**FIRST:** **F**ast, **I**ndependent, **R**epeatable, **S**elf-validating, **T**imely
+
+## Code Style
+
+### Required in Every File
+
+```python
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+```
+
+### Type Hints (Mandatory)
+
+Every function, method, and variable MUST have type hints.
+
+### Docstrings (Google Style)
+
+```python
+def calculate(prices: list[float], *, tax: float = 0.0) -> float:
+    """Calculate total with tax.
+
+    Parameters:
+        prices: Item prices.
+        tax: Tax rate as decimal.
+
+    Returns:
+        Final total.
+    """
+```
+
+### Ruff Config
+
+- Line length: 120
+- Target: Python 3.13+
+- Docstrings: Google convention
+- Imports: Absolute only
+
+## Commit Messages
+
+**Format:** `<type>[(scope)]: Subject`
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `deps`
+
+**Examples:**
+```
+feat: Add user authentication
+fix(parser): Handle empty input
+```
+
+**Changelog types:** `build`, `deps`, `feat`, `fix`, `refactor`
+
+## Project Structure
+
+```
+oedokumaci-testing/
+├── src/oedokumaci_testing/
+│   ├── __init__.py       # Public API
+│   ├── __main__.py       # Module entry point (run via `task run`)
+│   └── _internal/        # Private implementation
+│       └── cli.py        # CLI implementation
+├── tests/
+├── docs/
+├── config/               # Tool configs (ruff, pytest, coverage)
+├── notebooks/            # Marimo notebooks
+└── pyproject.toml        # Metadata, dependencies, and tasks
+```
+
+- **Public API**: Exports in `__init__.py`
+- **Internal**: `_internal/` - not for external use
+- **CLI**: `__main__.py` entry point calls `_internal/cli.py`
+
+## Notebooks
+
+**Do not run marimo notebooks directly.** Provide the command to the user instead.
+
+```bash
+uv run marimo edit notebooks/starter.py           # Edit
+uv run marimo edit --sandbox --watch notebooks/   # Edit with flags
+uv run marimo run notebooks/starter.py            # Run as app
+```
+
+## Logging
+
+Import `logger` directly from loguru (it's a singleton):
+
+```python
+from loguru import logger
+
+logger.info("Action", user_id=123, action="login")  # Structured data as kwargs
+```
+
+Use `configure_logging` from `_internal.logging` only to set up handlers.
+Example: `configure_logging(level="INFO", json_logs=False)`
+
+## Available Tasks
+
+Run with `uvx --from taskipy task <name>`:
+
+| Task | Description |
+|------|-------------|
+| `run` | Run module entrypoint |
+| `setup` | Install dependencies |
+| `format` | Format code (writes changes) |
+| `lint` | Lint and auto-fix (writes changes) |
+| `fix` | Format + lint auto-fix |
+| `format_check` | Check code formatting (CI) |
+| `lint_check` | Check linting (CI) |
+| `typecheck` | Run type checking |
+| `test` | Run tests with coverage |
+| `test_no_cov` | Run test suite (no coverage) |
+| `ci` | Run all CI checks (format, lint, typecheck, test) |
+| `docs` | Serve documentation locally |
+| `docs_build` | Build documentation (strict) |
+| `changelog` | Update changelog |
+| `clean` | Delete build artifacts and caches |
+| `profile` | Profile module with Scalene |
+| `profile_memory` | Profile module memory with Memray |
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `pyproject.toml` | Metadata, dependencies, tasks |
+| `config/ruff.toml` | Linting rules |
+| `config/pytest.ini` | Test configuration |
+| `.pre-commit-config.yaml` | Pre-commit hooks |
+
+## Do's and Don'ts
+
+**DO:**
+- Write tests FIRST (TDD)
+- Keep changes small and modular
+- Test behavior, not implementation
+- Type hints on everything
+- Google-style docstrings
+- `from __future__ import annotations` in every file
+- Absolute imports only
+- Run `uvx --from taskipy task fix && uvx --from taskipy task ci`
+
+**DON'T:**
+- Production code without failing test
+- Test implementation details
+- Push/release/deploy (user handles)
+- Skip type hints
+- Relative imports
+- `print()` for debugging (use `logger`)
+- `print()` for logging (use `logger`)
