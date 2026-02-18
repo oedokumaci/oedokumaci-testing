@@ -1,0 +1,260 @@
+# Notebooks
+
+This directory contains [marimo](https://marimo.io/) notebooks for data exploration, analysis, and interactive development.
+
+## Why marimo?
+
+marimo is a **reactive Python notebook** that solves the problems of traditional notebooks:
+
+| Feature | marimo | Jupyter |
+|---------|--------|---------|
+| **File format** | Pure Python (`.py`) | JSON (`.ipynb`) |
+| **Version control** | Git-friendly diffs | Hard to review |
+| **Execution** | Reactive, deterministic | Manual, can be out of order |
+| **Hidden state** | Impossible | Common source of bugs |
+| **Deployment** | Run as web apps | Requires additional tools |
+| **SQL support** | Native SQL cells | Requires extensions |
+| **AI integration** | Built-in | Requires extensions |
+
+## Quick Start
+
+### Installation
+
+marimo is installed automatically when you run `uvx --from taskipy task setup`. To install manually:
+
+```bash
+uv pip install "marimo[recommended]"
+```
+
+The `[recommended]` extra includes SQL support, AI completion, and additional features.
+
+### Commands
+
+```bash
+# Edit notebooks
+uv run marimo edit notebooks/starter.py     # Edit starter notebook
+uv run marimo edit notebooks/my.py          # Edit specific notebook
+
+# Run as interactive app
+uv run marimo run notebooks/starter.py      # Run starter notebook
+uv run marimo run notebooks/my.py           # Run specific notebook
+
+# Execute as script
+uv run python notebooks/starter.py
+
+# Tutorial
+uv run marimo tutorial intro                # Run interactive tutorial
+```
+
+### Recommended Edit Flags
+
+| Flag | Description |
+|------|-------------|
+| `--sandbox` | Track dependencies in notebook header for reproducibility |
+| `--watch` | Auto-reload when imported modules change |
+
+Example with recommended flags:
+
+```bash
+uv run marimo edit --sandbox --watch notebooks/my.py
+```
+
+This means your notebooks will automatically track which packages they use (saved in the `# /// script` header), and any changes to your project's modules will trigger a reload.
+
+### Sandbox Mode (Recommended)
+
+For reproducible notebooks with tracked dependencies:
+
+```bash
+uv run marimo edit --sandbox notebooks/my_notebook.py
+```
+
+This automatically tracks packages in the notebook's header:
+
+```python
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "marimo[recommended]",
+#     "pandas",
+#     "plotly",
+# ]
+# ///
+```
+
+## Available Notebooks
+
+| Notebook | Description |
+|----------|-------------|
+| `starter.py` | Template with examples, UI elements, and quick tips |
+
+## Best Practices
+
+### Reactive Programming
+
+marimo cells are **reactive** — when you modify a cell, all dependent cells automatically re-run:
+
+```python
+# Cell 1
+x = 10
+
+# Cell 2 (automatically re-runs when Cell 1 changes)
+y = x * 2
+```
+
+No more manually re-running cells or dealing with stale variables!
+
+### Interactive UI Elements
+
+Use `mo.ui` for sliders, dropdowns, tables, and more:
+
+```python
+import marimo as mo
+
+slider = mo.ui.slider(0, 100, value=50)
+dropdown = mo.ui.dropdown(["A", "B", "C"])
+table = mo.ui.table(dataframe)  # Interactive table with search/filter/sort
+explorer = mo.ui.dataframe(df)  # Full data explorer
+```
+
+### SQL Support
+
+marimo has native SQL cells. Click the SQL button in the editor or:
+
+```python
+# Query dataframes directly
+result = mo.sql(f"SELECT * FROM {df} WHERE value > 10")
+```
+
+### AI-Assisted Coding
+
+With `marimo[recommended]`, you get AI features:
+
+- **Generate cells**: `Ctrl/Cmd + Shift + E`
+- **AI chat panel**: Ask questions about your data
+- **Zero-shot notebooks**: Generate entire notebooks from descriptions
+
+Configure via settings or environment variables (`OPENAI_API_KEY`, etc.).
+
+### Code Quality
+
+Notebooks are pure Python — use your normal tools:
+
+```bash
+# Lint notebooks
+uv run ruff check notebooks/
+
+# Type check
+uvx ty check notebooks/
+```
+
+> **Note**: Formatting is handled by marimo automatically when you save in the editor.
+> Ruff formatting is excluded for notebooks to avoid conflicts.
+
+### Version Control
+
+- ✅ Commit `.py` notebook files — designed for Git
+- ❌ Don't commit `.ipynb` files — use marimo instead
+- The `.gitignore` in this folder handles this automatically
+
+## Export Options
+
+```bash
+# Export to standalone HTML
+uv run marimo export html notebooks/analysis.py -o report.html
+
+# Export to Jupyter (for colleagues who need it)
+uv run marimo export ipynb notebooks/analysis.py -o analysis.ipynb
+
+# Export to markdown
+uv run marimo export md notebooks/analysis.py -o analysis.md
+```
+
+## Resources
+
+### Documentation
+
+- [marimo Documentation](https://docs.marimo.io/) — Comprehensive guides and API reference
+- [Key Concepts Tutorial](https://docs.marimo.io/getting_started/key_concepts) — Essential concepts
+- [API Reference](https://docs.marimo.io/api/) — Full API documentation
+- [User Guide](https://docs.marimo.io/guides/) — In-depth guides
+
+### Learning
+
+- [Interactive Tutorials](https://docs.marimo.io/getting_started/installation) — Run `uv run marimo tutorial --help`
+- [YouTube Channel](https://www.youtube.com/@marimo-team) — Video tutorials and concept explanations
+- [Example Gallery](https://marimo.io/) — Browse community notebooks
+
+### Community
+
+- [Discord](https://discord.gg/JE7nhX6mD8) — Community discussions and support
+- [GitHub](https://github.com/marimo-team/marimo) — Source code, issues, and examples
+
+## Tips & Tricks
+
+### Structured Logging
+
+This project uses [loguru](https://github.com/Delgan/loguru) for JSON structured logging:
+
+```python
+from oedokumaci_testing import configure_logging, logger
+
+# Configure logging (call once at notebook start)
+configure_logging(level="DEBUG", json_logs=False)  # Human-readable for notebooks
+
+# Log with structured context
+logger.info("Loading dataset", file="data.csv", rows=1000)
+logger.debug("Processing complete", duration_ms=150)
+```
+
+### Caching Expensive Operations
+
+```python
+import marimo as mo
+
+@mo.cache
+def expensive_computation(data):
+    # Result is cached across cell re-runs
+    return process(data)
+```
+
+### Dynamic Markdown
+
+```python
+mo.md(f"""
+# Analysis for {dataset_name}
+
+Found **{len(df)}** records with average value **{df['value'].mean():.2f}**
+""")
+```
+
+### Layout and Formatting
+
+```python
+# Side by side
+mo.hstack([chart1, chart2])
+
+# Stacked
+mo.vstack([header, content, footer])
+
+# Accordion
+mo.accordion({"Section 1": content1, "Section 2": content2})
+
+# Callouts
+mo.callout("Important note!", kind="warn")
+```
+
+### Running as Apps
+
+Deploy notebooks as interactive web applications:
+
+```bash
+# Local app
+uv run marimo run notebooks/dashboard.py
+
+# With authentication
+uv run marimo run notebooks/dashboard.py --token-password="secret"
+
+# Docker deployment
+docker run -p 8080:8080 -v $(pwd)/notebooks:/app ghcr.io/marimo-team/marimo
+```

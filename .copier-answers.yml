@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier.
+_commit: 0.16.0-2-gb2a93b9
+_src_path: /home/runner/work/python-production-template-archive/python-production-template-archive
+author_email: oral.ersoy.dokumaci@gmail.com
+author_fullname: Oral Ersoy Dokumaci
+author_username: oedokumaci
+copyright_date: '2026'
+copyright_holder: Oral Ersoy Dokumaci
+copyright_holder_email: oral.ersoy.dokumaci@gmail.com
+copyright_license: MIT
+include_notebooks: true
+project_description: Testing this great template
+project_name: Oedokumaci Testing
+python_package_distribution_name: oedokumaci-testing
+python_package_import_name: oedokumaci_testing
+python_version: '3.13'
+repository_name: oedokumaci-testing
+repository_namespace: oedokumaci
+

@@ -1,0 +1,146 @@
+# CLAUDE.md
+
+This file provides guidance for AI assistants working on this codebase.
+
+## Project Overview
+
+**Oedokumaci Testing** - Python package managed with [uv](https://github.com/astral-sh/uv).
+
+| Attribute | Value |
+|-----------|-------|
+| Package | `oedokumaci-testing` |
+| Import | `oedokumaci_testing` |
+| Python | 3.13 |
+
+## Quick Reference
+
+```bash
+uvx --from taskipy task setup        # Install dependencies
+uvx --from taskipy task run          # Run the application
+uvx --from taskipy task fix          # Auto-format + lint fix
+uvx --from taskipy task ci           # Run all CI checks (format, lint, typecheck, test)
+uvx --from taskipy task test         # Run tests
+uvx --from taskipy task docs         # Serve docs locally
+uvx --from taskipy task changelog    # Update changelog (for releases)
+```
+
+## Standard Workflow
+
+1. **Explore** - Read relevant code first
+2. **Plan** - Ask clarifying questions for architectural changes
+3. **Test First** - Write failing test, then minimal code to pass, then refactor
+4. **Verify** - `uvx --from taskipy task fix && uvx --from taskipy task ci`
+
+**Ask before:** Adding dependencies, changing public API, modifying structure.
+
+## Task Independence
+
+Each Claude Code session is independent — there is no built-in multi-phase pipeline. Structure your requests as self-contained tasks. For multi-step workflows, complete each step fully before starting the next.
+
+## Development Workflow
+
+```bash
+git switch -c feat/my-feature             # 1. Create feature branch
+# write code and tests                    # 2. Implement changes
+uvx --from taskipy task fix               # 3. Auto-format + lint fix
+uvx --from taskipy task ci                # 4. Run all checks
+git add . && git commit -m "feat: ..."    # 5. Commit (Angular convention)
+git rebase -i main                        # 6. (Optional) Clean up commits
+git push -u origin feat/my-feature        # 7. Push branch
+gh pr create                              # 8. Create pull request
+```
+
+## Release Workflow (maintainers)
+
+```bash
+git checkout main && git pull                           # 1. Update main
+uvx --from taskipy task changelog                       # 2. Update CHANGELOG.md
+# update __version__ in src/oedokumaci_testing/__init__.py (hatch reads version from here)
+git add . && git commit -m "chore: Release vX.Y.Z"     # 3. Commit release
+git push && git tag vX.Y.Z && git push --tags           # 4. Tag and push
+gh release create vX.Y.Z --generate-notes               # 5. GitHub release
+```
+
+## Code Style
+
+### Required in Every File
+
+```python
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+```
+
+- **Type hints**: Mandatory on all functions, methods, and variables
+- **Docstrings**: Google style
+- **Ruff**: Line length 120, Python 3.13+, absolute imports only
+
+## Project Structure
+
+```
+oedokumaci-testing/
+├── .claude/skills/       # Claude Code skills (/commit, /fix, /test, etc.)
+├── .cursor/              # Cursor IDE (rules → CLAUDE.md, skills → .claude/skills)
+├── src/oedokumaci_testing/
+│   ├── __init__.py       # Public API
+│   ├── __main__.py       # Module entry point (run via `task run`)
+│   └── _internal/        # Private implementation
+│       └── cli.py        # CLI implementation
+├── tests/
+├── docs/
+├── config/               # Tool configs (ruff, pytest, coverage)
+├── notebooks/            # Marimo notebooks
+└── pyproject.toml        # Metadata, dependencies, and tasks
+```
+
+- **Public API**: Exports in `__init__.py` — always import from here (e.g., `from oedokumaci_testing import configure_logging`)
+- **Internal**: `_internal/` - private implementation, never import from `_internal` directly
+- **CLI**: `__main__.py` entry point calls `_internal/cli.py`
+
+## Notebooks
+
+**Do not run marimo notebooks directly.** Provide the command to the user instead.
+
+```bash
+uv run marimo edit notebooks/starter.py           # Edit
+uv run marimo edit --sandbox --watch notebooks/   # Edit with flags
+uv run marimo run notebooks/starter.py            # Run as app
+```
+
+## Logging
+
+Import `logger` directly from loguru (it's a singleton):
+
+```python
+from loguru import logger
+
+logger.info("Action", user_id=123, action="login")  # Structured data as kwargs
+```
+
+Use `configure_logging` (from `oedokumaci_testing`) to set up handlers.
+Example: `configure_logging(level="INFO", json_logs=False)`
+
+## Skills
+
+Skills are available in `.claude/skills/` (also symlinked at `.cursor/skills/` for Cursor IDE). Invoke with `/skill-name`:
+
+| Skill | Description |
+|-------|-------------|
+| `/commit` | Create well-structured git commits |
+| `/pr` | Create GitHub pull requests |
+| `/test` | Run the test suite |
+| `/fix` | Auto-format and lint code |
+| `/release` | Perform a project release |
+| `/review` | Perform code review |
+| `/marimo-notebook` | Write marimo notebooks properly |
+| `/jupyter-to-marimo` | Convert Jupyter notebooks to marimo |
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `pyproject.toml` | Metadata, dependencies, tasks |
+| `config/ruff.toml` | Linting rules |
+| `config/pytest.ini` | Test configuration |
+| `.pre-commit-config.yaml` | Pre-commit hooks |
